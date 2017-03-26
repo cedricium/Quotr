@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:id="@+id/touch"
+                android:background="@color/colorLightGrey">
+
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorWhite"
+            android:elevation="2dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"/>
+
+    <TextView
+            android:text="@string/opening_message"
+            android:id="@+id/quote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:fontFamily="serif"
+            android:textSize="24sp"
+            android:textColor="#545454"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_gravity="center"
+            android:layout_above="@+id/person"
+            android:textStyle="normal|italic"/>
+    <TextView
+            android:id="@+id/person"
+            android:text=""
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:fontFamily="sans-serif"
+            android:textSize="20sp"
+            android:gravity="end"
+            android:textColor="#16b6df"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_alignLeft="@+id/quote"
+            android:layout_alignStart="@+id/quote"
+            android:textStyle="normal|bold" android:textAlignment="textStart"
+            android:textAllCaps="true"/>
+</RelativeLayout>
