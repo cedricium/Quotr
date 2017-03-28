@@ -1,12 +1,18 @@
 package com.example.cedricamaya.quotr;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,10 +27,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class QuotrMainActivity extends AppCompatActivity {
-//    int count = 0;
-
     private TextView quoteText;
-    private TextView personText;
+    private TextView authorText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,50 +45,36 @@ public class QuotrMainActivity extends AppCompatActivity {
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         quoteText = (TextView) findViewById(R.id.quote);
-        personText = (TextView) findViewById(R.id.person);
-
-        // quotes from first example; were hard-coded into the client as shown below
-//        final ArrayList<Quote> quoteList = new ArrayList<Quote>();
-//
-//        Quote quote1 = new Quote("Cool Beans.", "Rod Kimble");
-//        quoteList.add(quote1);
-//
-//        Quote quote2 = new Quote("How can mirrors be real if our eyes " +
-//                "aren't real.","Jaden Smith");
-//        quoteList.add(quote2);
-//
-//        Quote quote3 = new Quote("That's like me blaming owls for how bad" +
-//                " I suck at analogies.", "Britta Perry");
-//        quoteList.add(quote3);
-//
-//        Quote quote4 = new Quote("You're more of a fun vampire. You don't" +
-//                " suck blood, you just suck.", "Troy Barnes");
-//        quoteList.add(quote4);
-//
-//        Quote quote5 = new Quote("You know what's better than materialistic" +
-//                " things, knowledge!", "Tai Lopez");
-//        quoteList.add(quote5);
+        authorText = (TextView) findViewById(R.id.person);
 
         touch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // old code for fetching hard-coded quotes from ArrayList
-//                if (count < quoteList.size()) {
-//                    Quote q = quoteList.get(count);
-//
-//                    quoteText.setText("\"" + q.getQuote() + "\"");
-//                    personText.setText("-" + q.getPerson());
-//                    count++;
-//                } else{
-//                    count = 0;
-//                }
-
                 // every time the screen is pressed, a request for the passed URL
                 // is made which contains the JSON data for a random quote
-                new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
-                        "?filter[orderby]=rand&filter[posts_per_page]=1");
+                if(isNetworkAvailable(getApplicationContext())) {
+                    new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
+                                           "?filter[orderby]=rand&filter[posts_per_page]=1");
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Internet Not Available", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+    
+    public boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+        context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        
+        if (connectivityManager != null){
+            NetworkInfo netInfos = connectivityManager.getActiveNetworkInfo();
+            if (netInfos != null)
+                if(netInfos.isConnected())
+                    return true;
+        }
+        
+        return false;
     }
 
     // thanks to this tutorial: https://youtu.be/X2mY3zfAMfM
@@ -245,7 +235,7 @@ public class QuotrMainActivity extends AppCompatActivity {
 
             // the TextView object that is responsible for displaying the author
             // is set to the second element of the received array
-            personText.setText(QUOTE_DASH + quotes[1]);
+            authorText.setText(QUOTE_DASH + quotes[1]);
         }
     }
 }
