@@ -1,6 +1,7 @@
 package com.example.cedricamaya.quotr;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
@@ -56,7 +57,8 @@ public class QuotrMainActivity extends AppCompatActivity {
                     new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
                             "?filter[orderby]=rand&filter[posts_per_page]=1");
                 } else {
-                    Toast.makeText(getApplicationContext(), "Internet Not Available", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),
+                            "Internet Not Available", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -78,89 +80,137 @@ public class QuotrMainActivity extends AppCompatActivity {
 
     // thanks to this tutorial: https://youtu.be/X2mY3zfAMfM
     public class JSONTask extends AsyncTask<String, String, String[]>{
-        static final int MAX_QUOTE_LENGTH = 360;
+        // int constants for the length of each screen size
+        static final int MAX_QUOTE_LENGTH_LARGE = 1000;        // large screen
+        static final int MAX_QUOTE_LENGTH_NORMAL = 350;        // normal screen
+        static final int MAX_QUOTE_LENGTH_SMALL = 200;         // small screen
+
+        static final String DEFAULT_QUOTE = "(undefined)";
+        static final String DEFAULT_AUTHOR = "(undefined)";
+
         static final String QUOTE_DASH = "— ";
         static final int INDEX_OF_QUOTE = 0;
         static final int INDEX_OF_AUTHOR = 1;
 
         @Override
-        protected String[] doInBackground(String... params){
-            // initalize connection for making HTTP requests and buffer reader
+        protected String[] doInBackground(String... params) {
+            char screenSize;
+
+            //// determine screen size
+            if ((getResources().getConfiguration().screenLayout &
+                    Configuration.SCREENLAYOUT_SIZE_MASK)
+                    == Configuration.SCREENLAYOUT_SIZE_LARGE) {
+                screenSize = 'L';
+            } else if ((getResources().getConfiguration().screenLayout &
+                    Configuration.SCREENLAYOUT_SIZE_MASK)
+                    == Configuration.SCREENLAYOUT_SIZE_NORMAL) {
+                screenSize = 'N';
+            } else if ((getResources().getConfiguration().screenLayout &
+                    Configuration.SCREENLAYOUT_SIZE_MASK)
+                    == Configuration.SCREENLAYOUT_SIZE_SMALL) {
+                screenSize = 'S';
+            } else {
+                screenSize = 'X';
+            }
+
+            // initialize connection for making HTTP requests and buffer reader
             // for reading data coming from said connection
             HttpURLConnection connection = null;
             BufferedReader reader = null;
 
-            try {
-                URL url = new URL(params[0]);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+            boolean quoteMatchesScreen = false;
+            String quote = DEFAULT_QUOTE;
+            String author = DEFAULT_AUTHOR;
 
-                InputStream stream = connection.getInputStream();
-
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                StringBuffer buffer = new StringBuffer();
-
-                // reader goes through each line of JSON from the given URL and
-                // adds it line-by-line to buffer
-                String line = "";
-                while ((line = reader.readLine()) != null){
-                    buffer.append(line);
-                }
-
-                // the JSON from the HTTP request is now saved as a String which
-                // can be turned into an actual JSON object
-                String finalJSON = buffer.toString();
-
-                // parsing finalJSON (the String) to turn into an actual JSON
-                // object
-                JSONArray parentArray = new JSONArray(finalJSON);
-                JSONObject finalObject = parentArray.getJSONObject(0);
-
-                // once JSON object is established, we can target specific
-                // identifiers and values, such as the quote and its author
-                String quote = finalObject.getString("content");
-                String author = finalObject.getString("title");
-
-              //// check to see if quote will overflow out of container -----
-                // currently doesn't work as expected: long quote appears for
-                // a second then goes displays a new quote - NEED-TO-FIX
-                if (quote.length() > MAX_QUOTE_LENGTH)
-                    new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
-                            "?filter[orderby]=rand&filter[posts_per_page]=1");
-
-                // an array of two strings is created, first string is the
-                // quote, second string is the author
-                String[] quoteCombo = {quote, author};
-
-                // send quote and author strings to be cleaned of HTML escape
-                // sequences
-                quoteCombo = cleanupStrings(quoteCombo);
-
-                return quoteCombo;
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally {
-                if (connection != null)
-                    connection.disconnect();
+            while (!quoteMatchesScreen) {
                 try {
-                    if (reader != null)
-                        reader.close();
+                    URL url = new URL(params[0]);
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.connect();
+
+                    InputStream stream = connection.getInputStream();
+
+                    reader = new BufferedReader(new InputStreamReader(stream));
+
+                    StringBuffer buffer = new StringBuffer();
+
+                    // reader goes through each line of JSON from the given URL and
+                    // adds it line-by-line to buffer
+                    String line = "";
+                    while ((line = reader.readLine()) != null) {
+                        buffer.append(line);
+                    }
+
+                    // the JSON from the HTTP request is now saved as a String which
+                    // can be turned into an actual JSON object
+                    String finalJSON = buffer.toString();
+
+                    // parsing finalJSON (the String) to turn into an actual JSON
+                    // object
+                    JSONArray parentArray = new JSONArray(finalJSON);
+                    JSONObject finalObject = parentArray.getJSONObject(0);
+
+                    // once JSON object is established, we can target specific
+                    // identifiers and values, such as the quote and its author
+                    quote = finalObject.getString("content");
+                    author = finalObject.getString("title");
+
+                    if (screenSize == 'S' && quote.length() <= MAX_QUOTE_LENGTH_SMALL) {
+                        quoteMatchesScreen = true;
+                        break;
+                    }
+                    if (screenSize == 'N' && quote.length() <= MAX_QUOTE_LENGTH_NORMAL) {
+                        quoteMatchesScreen = true;
+                        break;
+                    }
+                    if (screenSize == 'L' && quote.length() <= MAX_QUOTE_LENGTH_LARGE) {
+                        quoteMatchesScreen = true;
+                        break;
+                    }
+
+                    //// test screen size and quote length
+                    if (screenSize == 'S' && quote.length() > MAX_QUOTE_LENGTH_SMALL) {
+                        continue;
+                    }
+                    if (screenSize == 'N' && quote.length() > MAX_QUOTE_LENGTH_NORMAL) {
+                        continue;
+                    }
+                    if (screenSize == 'L' && quote.length() > MAX_QUOTE_LENGTH_LARGE) {
+                        continue;
+                    }
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (connection != null)
+                        connection.disconnect();
+                    try {
+                        if (reader != null)
+                            reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-            return null;
+
+            // an array of two strings is created, first string is the
+            // quote, second string is the author
+            String[] quoteCombo = {quote, author};
+
+            // send quote and author strings to be cleaned of HTML escape
+            // sequences
+            quoteCombo = cleanupStrings(quoteCombo);
+
+            return quoteCombo;
         }
 
         // method that takes quoteCombo array and parses both strings of HTML
         // escape sequences and returns cleaned-up strings
-        private String[] cleanupStrings(String[] quoteAndAuthor){
+        private String[] cleanupStrings(String[] quoteAndAuthor) {
             // an array of HTML escape sequences and tags to be replaced
             String[] searchList = {
                     "&#038;",       // &
@@ -225,7 +275,7 @@ public class QuotrMainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] quotes){
+        protected void onPostExecute(String[] quotes) {
             super.onPostExecute(quotes);
 
             // the TextView object that is responsible for displaying the quotes
@@ -237,5 +287,4 @@ public class QuotrMainActivity extends AppCompatActivity {
             authorText.setText(QUOTE_DASH + quotes[1]);
         }
     }
-
 }
