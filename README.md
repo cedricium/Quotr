@@ -2,7 +2,7 @@
 
 ## Delivering the best inspirational quotes on design and creativity.
 
-[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="240"/>](https://play.google.com/store/apps/details?id=com.ccc.cedricamaya.quotr)
+[<img src="/resources/google-play-badge.png" width="240"/>](https://play.google.com/store/apps/details?id=com.ccc.cedricamaya.quotr)
 
 ### Product Description:
 Hundreds of quotes on design from creatives, for creators. From the website Quotes on Design, this app brings many enlightening, inspiring, and sometimes humorous quotes to your pocket. A must-have if you ever need some extra inspiration.
