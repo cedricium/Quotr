@@ -1,8 +1,8 @@
 <img src="/resources/quotr_featured.png?raw=true?" />
 
-### Minimalistic Android app for the Quotes on Design website.
+## Delivering the best inspirational quotes on design and creativity.
 
-<img src="/resources/quotr_screenshots/screenshot1.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot2.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot3.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot4.png?raw=true?" height="300" />
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="240"/>](https://play.google.com/store/apps/details?id=com.ccc.cedricamaya.quotr)
 
 ### Product Description:
 Hundreds of quotes on design from creatives, for creators. From the website Quotes on Design, this app brings many enlightening, inspiring, and sometimes humorous quotes to your pocket. A must-have if you ever need some extra inspiration.
@@ -12,3 +12,4 @@ Hundreds of quotes on design from creatives, for creators. From the website Quot
 * Intuitive - tap the screen to fetch a new quote.
 * Support for LOTS of devices.
 
+<img src="/resources/quotr_screenshots/screenshot1.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot2.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot3.png?raw=true?" height="300" /> <img src="/resources/quotr_screenshots/screenshot4.png?raw=true?" height="300" />
