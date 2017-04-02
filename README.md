@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/cedricium/Quotr/dev/app/src/main/res/mipmap-mdpi/quotr_launcher.png"> Quotr
+<img src="/resources/quotr_featured.png?raw=true?" />
 
 ### Minimalistic Android app for the Quotes on Design website.
 
@@ -11,3 +11,4 @@ Hundreds of quotes on design from creatives, for creators. From the website Quot
 * Minimal - displays quotes and their authors, that's it.
 * Intuitive - tap the screen to fetch a new quote.
 * Support for LOTS of devices.
+
