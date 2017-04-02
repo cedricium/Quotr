@@ -1,4 +1,4 @@
-package com.example.cedricamaya.quotr;
+package com.ccc.cedricamaya.quotr;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

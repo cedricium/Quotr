@@ -1,15 +1,13 @@
-package com.example.cedricamaya.quotr;
+package com.ccc.cedricamaya.quotr;
 
 import android.content.Context;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;

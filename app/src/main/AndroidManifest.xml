@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.example.cedricamaya.quotr">
+          package="com.ccc.cedricamaya.quotr">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -12,7 +12,7 @@
             android:label="@string/app_name"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".QuotrMainActivity"
+        <activity android:name="com.ccc.cedricamaya.quotr.QuotrMainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
             <intent-filter>

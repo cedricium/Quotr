@@ -1,4 +1,4 @@
-package com.example.cedricamaya.quotr;
+package com.ccc.cedricamaya.quotr;
 
 public class Quote {
     public String quote;
