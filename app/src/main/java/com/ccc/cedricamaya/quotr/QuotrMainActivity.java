@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,17 +26,22 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class QuotrMainActivity extends AppCompatActivity {
     private TextView quoteText;
     private TextView authorText;
+
+    ArrayList<String[]> previousQuotes = new ArrayList<String[]>();
+    int previousQuotesIndex = -1;
+    static final String QUOTE_DASH = "— ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quotr_main);
 
-        RelativeLayout touch = (RelativeLayout) findViewById(R.id.touch);
+        final RelativeLayout touch = (RelativeLayout) findViewById(R.id.touch);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -46,20 +53,43 @@ public class QuotrMainActivity extends AppCompatActivity {
         quoteText = (TextView) findViewById(R.id.quote);
         authorText = (TextView) findViewById(R.id.person);
 
-        touch.setOnClickListener(new View.OnClickListener() {
+        final View.OnTouchListener handleTouch = new View.OnTouchListener() {
+
             @Override
-            public void onClick(View view) {
-            // every time the screen is pressed, a request for the passed URL
-            // is made which contains the JSON data for a random quote
-                if(isNetworkAvailable(getApplicationContext())) {
-                    new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
-                            "?filter[orderby]=rand&filter[posts_per_page]=1");
-                } else {
-                    Toast.makeText(getApplicationContext(),
+            public boolean onTouch(View v, MotionEvent event) {
+                final int SCREEN_DIVISIONS = 4;
+                int x = (int) event.getX();
+
+                DisplayMetrics dm = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(dm);
+                int screenWidth = dm.widthPixels;
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    if (isNetworkAvailable(getApplicationContext())){
+                        if (x < (screenWidth / SCREEN_DIVISIONS)){
+                            previousQuotesIndex--;
+                            if (previousQuotesIndex <= -1)
+                                Toast.makeText(getApplicationContext(), "No previous quotes to show.", Toast.LENGTH_SHORT).show();
+                            else {
+                                String[] quoteAndAuthor = previousQuotes.get(previousQuotesIndex);
+                                quoteText.setText(quoteAndAuthor[0]);
+                                authorText.setText(QUOTE_DASH + quoteAndAuthor[1]);
+                            }
+                        }
+                        else    // right 3/4 screen pressed - get new quote
+                            new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
+                                    "?filter[orderby]=rand&filter[posts_per_page]=1");
+                    }
+                    else
+                        Toast.makeText(getApplicationContext(),
                             "Internet Not Available", Toast.LENGTH_SHORT).show();
                 }
+
+                return true;
             }
-        });
+        };
+
+        touch.setOnTouchListener(handleTouch);
     }
 
     public boolean isNetworkAvailable(Context context) {
@@ -67,9 +97,9 @@ public class QuotrMainActivity extends AppCompatActivity {
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if (connectivityManager != null){
-            NetworkInfo netInfos = connectivityManager.getActiveNetworkInfo();
-            if (netInfos != null)
-                if(netInfos.isConnected())
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null)
+                if(networkInfo.isConnected())
                     return true;
         }
 
@@ -86,7 +116,6 @@ public class QuotrMainActivity extends AppCompatActivity {
         static final String DEFAULT_QUOTE = "(undefined)";
         static final String DEFAULT_AUTHOR = "(undefined)";
 
-        static final String QUOTE_DASH = "— ";
         static final int INDEX_OF_QUOTE = 0;
         static final int INDEX_OF_AUTHOR = 1;
 
@@ -94,7 +123,7 @@ public class QuotrMainActivity extends AppCompatActivity {
         protected String[] doInBackground(String... params) {
             char screenSize;
 
-            //// determine screen size
+            // determine screen size
             if ((getResources().getConfiguration().screenLayout &
                     Configuration.SCREENLAYOUT_SIZE_MASK)
                     == Configuration.SCREENLAYOUT_SIZE_LARGE) {
@@ -195,12 +224,8 @@ public class QuotrMainActivity extends AppCompatActivity {
                 }
             }
 
-            // an array of two strings is created, first string is the
-            // quote, second string is the author
             String[] quoteCombo = {quote, author};
 
-            // send quote and author strings to be cleaned of HTML escape
-            // sequences
             quoteCombo = cleanupStrings(quoteCombo);
 
             return quoteCombo;
@@ -223,6 +248,7 @@ public class QuotrMainActivity extends AppCompatActivity {
                     "&#8230;",      // …
                     "&#8243;",      // ″
                     "&hellip;",     // …
+                    "&eacute",      // é
 
                     // HTML tags
                     "<br />",
@@ -249,6 +275,7 @@ public class QuotrMainActivity extends AppCompatActivity {
                     "…",
                     "″",
                     "…",
+                    "é",
 
                     // HTML tags
                     "\n",
@@ -276,13 +303,16 @@ public class QuotrMainActivity extends AppCompatActivity {
         protected void onPostExecute(String[] quotes) {
             super.onPostExecute(quotes);
 
+            previousQuotes.add(quotes);
+            previousQuotesIndex = (previousQuotes.size() - 1);
+
             // the TextView object that is responsible for displaying the quotes
             // is set to the first element of the the received array
-            quoteText.setText(quotes[0]);
+            quoteText.setText(quotes[INDEX_OF_QUOTE]);
 
             // the TextView object that is responsible for displaying the author
             // is set to the second element of the received array
-            authorText.setText(QUOTE_DASH + quotes[1]);
+            authorText.setText(QUOTE_DASH + quotes[INDEX_OF_AUTHOR]);
         }
     }
 }
