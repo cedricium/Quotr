@@ -1,17 +1,25 @@
 package com.ccc.cedricamaya.quotr;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +45,7 @@ public class QuotrMainActivity extends AppCompatActivity {
     static final String QUOTE_DASH = "— ";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quotr_main);
 
@@ -46,7 +54,6 @@ public class QuotrMainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -66,15 +73,14 @@ public class QuotrMainActivity extends AppCompatActivity {
 
                 if (event.getAction() == MotionEvent.ACTION_DOWN){
                     if (isNetworkAvailable(getApplicationContext())){
-                        if (x < (screenWidth / SCREEN_DIVISIONS)){
+                        if (x < (screenWidth / SCREEN_DIVISIONS) && previousQuotesIndex > 0){
                             previousQuotesIndex--;
-                            if (previousQuotesIndex <= -1)
-                                Toast.makeText(getApplicationContext(), "No previous quotes to show.", Toast.LENGTH_SHORT).show();
-                            else {
-                                String[] quoteAndAuthor = previousQuotes.get(previousQuotesIndex);
-                                quoteText.setText(quoteAndAuthor[0]);
-                                authorText.setText(QUOTE_DASH + quoteAndAuthor[1]);
-                            }
+                            String[] quoteAndAuthor = previousQuotes.get(previousQuotesIndex);
+                            quoteText.setText(quoteAndAuthor[0]);
+                            authorText.setText(QUOTE_DASH + quoteAndAuthor[1]);
+                        }
+                        else if (x < (screenWidth / SCREEN_DIVISIONS) && previousQuotesIndex <= 0) {
+                            return true;
                         }
                         else    // right 3/4 screen pressed - get new quote
                             new JSONTask().execute("http://quotesondesign.com/wp-json/posts" +
@@ -82,14 +88,54 @@ public class QuotrMainActivity extends AppCompatActivity {
                     }
                     else
                         Toast.makeText(getApplicationContext(),
-                            "Internet Not Available", Toast.LENGTH_SHORT).show();
+                                "Internet Not Available", Toast.LENGTH_SHORT).show();
                 }
-
                 return true;
             }
         };
 
         touch.setOnTouchListener(handleTouch);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String[] quoteAndAuthor = previousQuotes.get(previousQuotesIndex);
+        String currentQuote = quoteAndAuthor[0].trim();
+        String currentAuthor = quoteAndAuthor[1];
+        String shareQuote = "\"" + currentQuote + "\" " + QUOTE_DASH + currentAuthor;
+
+        switch (item.getItemId()) {
+            case R.id.share:
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Quotr - quotes on design");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareQuote);
+
+                startActivity(Intent.createChooser(shareIntent, "Share"));
+
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        boolean menuEnabled = isQuoteAvailable();
+
+        if (!menuEnabled)
+            menu.findItem(R.id.share).setEnabled(false);
+
+        menu.findItem(R.id.share).setEnabled(menuEnabled);
+        supportInvalidateOptionsMenu();
+        return true;
     }
 
     public boolean isNetworkAvailable(Context context) {
@@ -105,6 +151,16 @@ public class QuotrMainActivity extends AppCompatActivity {
 
         return false;
     }
+
+    public boolean isQuoteAvailable() {
+        boolean quoteAvailable = false;
+
+        if (previousQuotesIndex >= 0)
+            quoteAvailable = true;
+
+        return quoteAvailable;
+    }
+
 
     // thanks to this tutorial: https://youtu.be/X2mY3zfAMfM
     public class JSONTask extends AsyncTask<String, String, String[]>{

@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         
         <item name="actionBarStyle">@style/MyActionBar</item>
+
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
