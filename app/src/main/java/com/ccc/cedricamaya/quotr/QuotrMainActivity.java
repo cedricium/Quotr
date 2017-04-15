@@ -35,7 +35,7 @@ public class QuotrMainActivity extends AppCompatActivity {
     private TextView quoteText;
     private TextView authorText;
 
-    ArrayList<String[]> previousQuotes = new ArrayList<String[]>();
+    ArrayList<String[]> previousQuotes = new ArrayList<>();
     int previousQuotesIndex = -1;
     static final String QUOTE_DASH = "— ";
 
@@ -51,6 +51,7 @@ public class QuotrMainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
+        myToolbar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_action_overflow));
 
         quoteText = (TextView) findViewById(R.id.quote);
         authorText = (TextView) findViewById(R.id.person);
@@ -125,10 +126,12 @@ public class QuotrMainActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu (Menu menu) {
         boolean menuEnabled = isQuoteAvailable();
 
-        if (!menuEnabled)
-            menu.findItem(R.id.share).setEnabled(false);
+        int toolbarMenuGroup = 0;
 
-        menu.findItem(R.id.share).setEnabled(menuEnabled);
+        if (!menuEnabled)
+            menu.setGroupEnabled(toolbarMenuGroup, false);
+
+        menu.setGroupEnabled(toolbarMenuGroup, menuEnabled);
         supportInvalidateOptionsMenu();
         return true;
     }
@@ -155,7 +158,6 @@ public class QuotrMainActivity extends AppCompatActivity {
 
         return quoteAvailable;
     }
-
 
     // thanks to this tutorial: https://youtu.be/X2mY3zfAMfM
     public class JSONTask extends AsyncTask<String, String, String[]>{

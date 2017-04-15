@@ -14,5 +14,11 @@
             android:orderInCategory="1"
             app:showAsAction="ifRoom" />
 
+        <item
+            android:id="@+id/settings"
+            android:title="@string/settings"
+            android:orderInCategory="2"
+            app:showAsAction="never" />
+
     </group>
 </menu>
