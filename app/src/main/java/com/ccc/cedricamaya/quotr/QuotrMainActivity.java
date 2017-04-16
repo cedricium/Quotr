@@ -50,7 +50,7 @@ public class QuotrMainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
+        getSupportActionBar().setIcon(R.mipmap.quotes);
         myToolbar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_action_overflow));
 
         quoteText = (TextView) findViewById(R.id.quote);
